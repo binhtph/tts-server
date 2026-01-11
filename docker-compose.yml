@@ -1,6 +1,16 @@
 version: '3.8'
 
 services:
+  # helper to fix permissions on docker volumes
+  init-chmod:
+    image: alpine:latest
+    container_name: tts-server_init
+    command: sh -c "chmod -R 777 /etc/owntone /var/cache/owntone /srv/media"
+    volumes:
+      - ./owntone/etc:/etc/owntone
+      - ./owntone/cache:/var/cache/owntone
+      - ./owntone/tts:/srv/media
+
   tts-api:
     image: docker.io/tranphuongbinh/tts-api
     container_name: tts-server_tts-api
@@ -11,6 +21,9 @@ services:
     environment:
       - MODEL_DIR=/app/models
     restart: always
+    depends_on:
+      init-chmod:
+        condition: service_completed_successfully
 
   owntone:
     image: docker.io/owntone/owntone:latest
@@ -24,3 +37,6 @@ services:
       - ./owntone/tts:/srv/media
       - ./owntone/cache:/var/cache/owntone
     restart: unless-stopped
+    depends_on:
+      init-chmod:
+        condition: service_completed_successfully
