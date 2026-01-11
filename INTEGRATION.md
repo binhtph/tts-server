@@ -8,9 +8,9 @@
 ```mermaid
 sequenceDiagram
     participant HASS as Home Assistant
-    participant TTS as TTS API (172.16.100.252:8001)
+    participant TTS as TTS API (<IP_DOCKER>:8001)
     participant FS as Shared Folder (/srv/media)
-    participant OT as OwnTone (172.16.100.252:3689)
+    participant OT as OwnTone (<IP_DOCKER>:3689)
     participant SPK as Speakers
 
     Note over HASS, OT: 1. Generation Phase
@@ -33,7 +33,7 @@ sequenceDiagram
 
 ### A. Define the Shell Command (Download to Shared Folder)
 
-Update your `configuration.yaml`. This command downloads the WAV from the API (at `172.16.100.252`) and saves it directly to the folder OwnTone watches.
+Update your `configuration.yaml`. This command downloads the WAV from the API (at `<IP_DOCKER>`) and saves it directly to the folder OwnTone watches.
 
 *Change `/media/tts/` to the path where you mounted the folder inside Home Assistant.*
 
@@ -43,7 +43,7 @@ shell_command:
     curl -X POST 
     -H "Content-Type: application/json" 
     -d '{"text": "{{ text }}", "model_name": "{{ model_name }}", "speed": {{ speed | int }}}' 
-    "http://172.16.100.252:8001/tts" 
+    "http://<IP_DOCKER>:8001/tts" 
     --output "/media/tts/owntone.wav"
 ```
 
@@ -52,16 +52,16 @@ shell_command:
 ```yaml
 rest_command:
   owntone_clear:
-    url: "http://172.16.100.252:3689/api/queue/clear"
+    url: "http://<IP_DOCKER>:3689/api/queue/clear"
     method: PUT
   
   owntone_add_item:
     # Use 'file://' URI to play the local file inside the OwnTone container
-    url: "http://172.16.100.252:3689/api/queue/items/add?uri=file:///srv/media/owntone.wav"
+    url: "http://<IP_DOCKER>:3689/api/queue/items/add?uri=file:///srv/media/owntone.wav"
     method: POST
     
   owntone_play:
-    url: "http://172.16.100.252:3689/api/player/play"
+    url: "http://<IP_DOCKER>:3689/api/player/play"
     method: PUT
 ```
 
@@ -102,6 +102,6 @@ script:
 
 -   **Debug Command**: If you are unsure what the API is returning or getting 422 errors, run this command on your terminal to test:
     ```bash
-    curl -v -X POST -H "Content-Type: application/json" -d '{"text": "xin chao", "model_name": "ngocngan3701", "speed": 1}' http://172.16.100.252:8001/tts --output test.wav
+    curl -v -X POST -H "Content-Type: application/json" -d '{"text": "xin chao", "model_name": "ngocngan3701", "speed": 1}' http://<IP_DOCKER>:8001/tts --output test.wav
     ```
     (Check the content of `test.wav`. If it plays, the API handles binary response correctly. If it's text, you need to adjust processing.)
