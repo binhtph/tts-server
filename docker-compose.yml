@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  tts-api:
+    image: docker.io/tranphuongbinh/tts-api
+    container_name: tts-server_tts-api
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./tts-api/models:/app/models
+    environment:
+      - MODEL_DIR=/app/models
+    restart: always
+
+  owntone:
+    image: docker.io/owntone/owntone:latest
+    container_name: tts-server_owntone
+    network_mode: host
+    environment:
+      - UID=1000
+      - GID=1000
+    volumes:
+      - ./owntone/etc:/etc/owntone
+      - ./owntone/tts:/srv/media
+      - ./owntone/cache:/var/cache/owntone
+    restart: unless-stopped

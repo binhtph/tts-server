@@ -1,0 +1,19 @@
+# OwnTone
+owntone/cache/
+owntone/tts/
+*.log
+*.db
+*.bak
+
+# TTS API
+tts-api/models/
+*.onnx
+*.onnx.json
+
+# Generated Audio
+*.wav
+
+# Python/System
+__pycache__/
+*.pyc
+.DS_Store
