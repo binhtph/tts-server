@@ -42,7 +42,7 @@ shell_command:
   tts_download_to_server: >-
     curl -X POST 
     -H "Content-Type: application/json" 
-    -d '{"text": "{{ text }}", "model_name": "{{ model_name }}", "speed": {{ speed | int }}}' 
+    -d '{"text": "{{ text }}", "model_name": "{{ model_name }}", "speed": {{ speed | int(default=1) }}}' 
     "http://<IP_DOCKER>:8001/tts" 
     --output "/config/tts/{{ filename }}"
 
