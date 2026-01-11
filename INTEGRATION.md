@@ -35,7 +35,7 @@ sequenceDiagram
 
 Update your `configuration.yaml`. This command downloads the WAV from the API (at `<IP_DOCKER>`) and saves it directly to the folder OwnTone watches.
 
-*Change `/media/tts/` to the path where you mounted the folder inside Home Assistant.*
+*Change `/config/tts/` to the path where you mounted the folder inside Home Assistant.*
 
 ```yaml
 shell_command:
@@ -44,12 +44,8 @@ shell_command:
     -H "Content-Type: application/json" 
     -d '{"text": "{{ text }}", "model_name": "{{ model_name }}", "speed": {{ speed | int }}}' 
     "http://<IP_DOCKER>:8001/tts" 
-    --output "/media/tts/owntone.wav"
-```
+    --output "/config/tts/{{ filename }}"
 
-### B. Define REST Commands for OwnTone
-
-```yaml
 rest_command:
   owntone_clear:
     url: "http://<IP_DOCKER>:3689/api/queue/clear"
@@ -57,17 +53,14 @@ rest_command:
   
   owntone_add_item:
     # Use 'file://' URI to play the local file inside the OwnTone container
-    url: "http://<IP_DOCKER>:3689/api/queue/items/add?uri=file:///srv/media/owntone.wav"
+    # We pass {{ filename }} variable here
+    url: "http://<IP_DOCKER>:3689/api/queue/items/add?uri=file:///srv/media/{{ filename }}"
     method: POST
     
   owntone_play:
     url: "http://<IP_DOCKER>:3689/api/player/play"
     method: PUT
-```
 
-### C. Create the Script
-
-```yaml
 script:
   tts_direct_save:
     alias: "TTS: Direct Save & Play"
@@ -81,13 +74,17 @@ script:
       speed:
         description: "Speed"
         default: 1.0
+      filename:
+        description: "Filename to save (e.g., alert.wav)"
+        default: "owntone.wav"
     sequence:
-      # 1. Download WAV directly to the shared media folder
+      # 1. Download WAV directly to the shared media folder with specific filename
       - service: shell_command.tts_download_to_server
         data:
           text: "{{ text }}"
           model_name: "{{ model_name }}"
           speed: "{{ speed }}"
+          filename: "{{ filename }}"
       
       # 2. Wait for file write to complete
       - delay: "00:00:01"
@@ -95,13 +92,31 @@ script:
       # 3. Queue and Play
       - service: rest_command.owntone_clear
       - service: rest_command.owntone_add_item
+        data:
+          filename: "{{ filename }}"
       - service: rest_command.owntone_play
 ```
 
 ### D. Troubleshooting
 
--   **Debug Command**: If you are unsure what the API is returning or getting 422 errors, run this command on your terminal to test:
+-   **Debug Command for TTS API**: If you are unsure what the API is returning or getting 422 errors, run this command on your terminal to test:
     ```bash
-    curl -v -X POST -H "Content-Type: application/json" -d '{"text": "xin chao", "model_name": "ngocngan3701", "speed": 1}' http://<IP_DOCKER>:8001/tts --output test.wav
+    curl -v -X POST -H "Content-Type: application/json" -d '{"text": "xin chao", "model_name": "vietthao3886", "speed": 1}' http://<IP_DOCKER>:8001/tts --output test.wav
     ```
     (Check the content of `test.wav`. If it plays, the API handles binary response correctly. If it's text, you need to adjust processing.)
+
+-   **Test OwnTone Control (Manual CURL)**:
+    Assuming you have a file `owntone.wav` in the shared folder (`owntone/tts`), you can test the playback sequence manually:
+
+    1.  **Clear Queue**:
+        ```bash
+        curl -v -X PUT "http://<IP_DOCKER>:3689/api/queue/clear"
+        ```
+    2.  **Add Item** (Force local file playback):
+        ```bash
+        curl -v -X POST "http://<IP_DOCKER>:3689/api/queue/items/add?uri=file:///srv/media/owntone.wav"
+        ```
+    3.  **Play**:
+        ```bash
+        curl -v -X PUT "http://<IP_DOCKER>:3689/api/player/play"
+        ```
