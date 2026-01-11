@@ -70,7 +70,7 @@ script:
         example: "Xin chào"
       model_name:
         description: "Model name"
-        default: "ngocngan3701"
+        default: "vietthao3886"
       speed:
         description: "Speed"
         default: 1.0
