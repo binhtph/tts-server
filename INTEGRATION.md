@@ -40,9 +40,9 @@ Update your `configuration.yaml`. This command downloads the WAV from the API (a
 ```yaml
 shell_command:
   tts_download_to_server: >-
-    curl -X POST 
+    curl -s -X POST 
     -H "Content-Type: application/json" 
-    -d '{"text": "{{ text }}", "model_name": "{{ model_name }}", "speed": {{ speed | int(default=1) }}}' 
+    -d '{"text": "{{ text }}", "model_name": "{{ model_name }}", "speed": {{ speed | int(1) }}}' 
     "http://<IP_DOCKER>:8001/tts" 
     --output "/config/tts/{{ filename }}"
 
@@ -120,3 +120,15 @@ script:
         ```bash
         curl -v -X PUT "http://<IP_DOCKER>:3689/api/player/play"
         ```
+
+-   **Problem: No Error but File Not Saved**:
+    If Home Assistant says "Success" but no file appears:
+    1.  **Check Path**: Does the folder `/config/tts` exist inside your Home Assistant container?
+        -   If you mapped `- ...:/media/tts`, you MUST use `/media/tts` in the shell_command.
+        -   If you mapped `- ...:/config/tts`, you MUST use `/config/tts`.
+    2.  **Test from HASS**:
+        Go to **Developer Tools > YAML > Shell Command** (or run in HASS terminal):
+        ```bash
+        curl -v "http://<IP_DOCKER>:8001/health"
+        ```
+        If this fails, HASS cannot see the TTS server (Network issue).
