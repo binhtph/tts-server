@@ -99,13 +99,14 @@ script:
 
 ### D. Troubleshooting
 -   **Developer tools > Actions for Home Assistant**: 
-
-action: script.tts_direct_save
-data:
-  text: xin chào tôi là việt thảo nè, hôm nay bạn muốn nghe truyện gì
-  model_name: vietthao3886
-  speed: 1
-  filename: xinchao.wav
+    ```yaml
+    action: script.tts_direct_save
+    data:
+      text: xin chào tôi là việt thảo nè, hôm nay bạn muốn nghe truyện gì
+      model_name: vietthao3886
+      speed: 1
+      filename: xinchao.wav
+    ```
 
 
 -   **Debug Command for TTS API**: If you are unsure what the API is returning or getting 422 errors, run this command on your terminal to test:
