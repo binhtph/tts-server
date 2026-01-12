@@ -81,10 +81,10 @@ script:
       # 1. Download WAV directly to the shared media folder with specific filename
       - action: shell_command.tts_download_to_server
         data:
-          text: "{{ text }}"
-          model_name: "{{ model_name }}"
-          speed: "{{ speed }}"
-          filename: "{{ filename }}"
+          text: {{ text }}
+          model_name: {{ model_name }}
+          speed: {{ speed }}
+          filename: {{ filename }}
       
       # 2. Wait for file write to complete
       - delay: "00:00:01"
@@ -93,7 +93,7 @@ script:
       - action: rest_command.owntone_clear
       - action: rest_command.owntone_add_item
         data:
-          filename: "{{ filename }}"
+          filename: {{ filename }}
       - action: rest_command.owntone_play
 ```
 
