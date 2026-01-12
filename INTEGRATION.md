@@ -73,13 +73,13 @@ script:
         default: "vietthao3886"
       speed:
         description: "Speed"
-        default: 1.0
+        default: 1
       filename:
         description: "Filename to save (e.g., alert.wav)"
         default: "owntone.wav"
     sequence:
       # 1. Download WAV directly to the shared media folder with specific filename
-      - service: shell_command.tts_download_to_server
+      - action: shell_command.tts_download_to_server
         data:
           text: "{{ text }}"
           model_name: "{{ model_name }}"
@@ -90,11 +90,11 @@ script:
       - delay: "00:00:01"
 
       # 3. Queue and Play
-      - service: rest_command.owntone_clear
-      - service: rest_command.owntone_add_item
+      - action: rest_command.owntone_clear
+      - action: rest_command.owntone_add_item
         data:
           filename: "{{ filename }}"
-      - service: rest_command.owntone_play
+      - action: rest_command.owntone_play
 ```
 
 ### D. Troubleshooting
